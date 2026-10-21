@@ -4,49 +4,59 @@
 #include <limits>
 
 constexpr int kCommandSize{16};
-constexpr long long kMaxTotal{std::numeric_limits<long long>::max()};
 
-void Deposit(long long& total) {
-  long long amount;
-  if (!(std::cin >> amount) || amount <= 0 || amount > kMaxTotal - total) {
+bool ReadAmount(int& amount) {
+  while (std::cin.peek() == ' ' || std::cin.peek() == '\t' ||
+         std::cin.peek() == '\r') {
+    std::cin.get();
+  }
+  return std::cin.peek() != '\n' && (std::cin >> amount);
+}
+
+void Deposit(int& total) {
+  int amount;
+  if (!ReadAmount(amount) || amount <= 0) {
     std::cout << "error\n";
     return;
   }
   total += amount;
 }
 
-void Withdraw(long long& total) {
-  long long amount;
-  if (!(std::cin >> amount) || amount <= 0 || amount > total) {
+void Withdraw(int& total) {
+  int amount;
+  if (!ReadAmount(amount) || amount <= 0 || amount > total) {
     std::cout << "error\n";
     return;
   }
   total -= amount;
 }
 
-void Balance(long long& total) { std::cout << total << '\n'; }
+void Balance(int& total) {
+  std::cout << total << '\n';
+}
 
-void Reset(long long& total) { total = 0; }
+void Reset(int& total) {
+  total = 0;
+}
 
-void Inc(long long& total) {
-  if (total == kMaxTotal) {
-    std::cout << "error\n";
-    return;
-  }
+void Inc(int& total) {
   ++total;
 }
 
 struct Command {
   const char* name;
-  void (*action)(long long&);
+  void (*action)(int&);
 };
 
 int main() {
   const Command commands[]{
-      {"deposit", Deposit}, {"withdraw", Withdraw}, {"balance", Balance},
-      {"reset", Reset},     {"inc", Inc},
+    {"deposit", Deposit},
+    {"withdraw", Withdraw},
+    {"balance", Balance},
+    {"reset", Reset},
+    {"inc", Inc},
   };
-  long long total{0};
+  int total{0};
   char name[kCommandSize];
 
   while (std::cin >> std::setw(kCommandSize) >> name) {
